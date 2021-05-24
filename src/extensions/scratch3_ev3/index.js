@@ -350,6 +350,63 @@ class EV3Motor {
 
         this.coastAfter(milliseconds);
     }
+                                
+
+    capSpeed(speed)
+    {
+        if (speed > 100) { speed = 100; }
+        if (speed < -100) { speed = -100; }
+        return speed;
+    }
+
+    turnByDegrees (degrees, speed) {
+                                
+        if (this._power === 0) return;
+
+        speed = this.capSpeed(speed);
+
+        if (degrees < 0)
+        {
+            degrees *= -1;
+            speed *= -1;
+        }
+                                
+        const port = this._portMask(this._index);
+        let n = degrees;
+        //let speed = this._power * this._direction;
+        const ramp = Ev3Args.RAMP;
+
+        let byteCommand = [];
+        byteCommand[0] = Ev3Opcode.OPOUTPUT_STEP_SPEED;
+
+        // Setup motor run duration and ramping behavior
+        let rampup = ramp;
+        let rampdown = ramp;
+      
+        // Generate motor command values
+        const runcmd = this._runValues(n);
+        byteCommand = byteCommand.concat([
+            Ev3Args.LAYER,
+            port,
+            Ev3Encoding.ONE_BYTE,
+            speed & 0xff,
+            Ev3Encoding.ONE_BYTE,
+            rampup,
+        ]).concat(runcmd.concat([
+            Ev3Encoding.ONE_BYTE,
+            rampdown,
+            Ev3Args.BRAKE
+        ]));
+
+        const cmd = this._parent.generateCommand(
+            Ev3Command.DIRECT_COMMAND_NO_REPLY,
+            byteCommand
+        );
+
+        this._parent.send(cmd);
+
+       // this.coastAfter(milliseconds);
+    }
 
     /**
      * Set the motor to coast after a specified amount of time.
@@ -1004,6 +1061,46 @@ class Scratch3Ev3Blocks {
                         }
                     }
                 },
+                     {
+                         opcode: 'motorTurnCounterClockwiseAsync',
+                         text: formatMessage({
+                             id: 'ev3.motorTurnCounterClockwiseAsync',
+                             default: 'motor [PORT] turn that way for [TIME] seconds async',
+                             description: 'turn a motor counter-clockwise for some time'
+                         }),
+                         blockType: BlockType.COMMAND,
+                         arguments: {
+                             PORT: {
+                                 type: ArgumentType.STRING,
+                                 menu: 'motorPorts',
+                                 defaultValue: 0
+                             },
+                             TIME: {
+                                 type: ArgumentType.NUMBER,
+                                 defaultValue: 1
+                             }
+                         }
+                     },
+                      {
+                         opcode: 'motorTurnByDegrees',
+                         text: formatMessage({
+                             id: 'ev3.motorTurnDegrees',
+                             default: 'motor [PORT] [DEGREES] degrees',
+                             description: 'turn a motor a certain number of degrees'
+                         }),
+                         blockType: BlockType.COMMAND,
+                         arguments: {
+                             PORT: {
+                                 type: ArgumentType.STRING,
+                                 menu: 'motorPorts',
+                                 defaultValue: 0
+                             },
+                             DEGREES: {
+                                 type: ArgumentType.NUMBER,
+                                 defaultValue: 90
+                             }
+                         }
+                     },
                 {
                     opcode: 'motorSetPower',
                     text: formatMessage({
@@ -1191,6 +1288,46 @@ class Scratch3Ev3Blocks {
         });
     }
 
+   motorTurnCounterClockwiseAsync (args) {
+        const port = Cast.toNumber(args.PORT);
+        let time = Cast.toNumber(args.TIME) * 1000;
+        time = MathUtil.clamp(time, 0, 15000);
+
+        return new Promise(resolve => {
+            this._forEachMotor(port, motorIndex => {
+                const motor = this._peripheral.motor(motorIndex);
+                if (motor) {
+                    motor.direction = -1;
+                    motor.turnOnFor(time);
+                }
+            });
+
+            // Run for some time even when no motor is connected
+          //  setTimeout(resolve, time);
+                           resolve();
+        });
+    }
+                                
+motorTurnByDegrees (args) {
+        const port = Cast.toNumber(args.PORT);
+        let degrees = Cast.toNumber(args.DEGREES);
+      //  time = MathUtil.clamp(time, 0, 15000);
+
+        return new Promise(resolve => {
+            this._forEachMotor(port, motorIndex => {
+                const motor = this._peripheral.motor(motorIndex);
+                if (motor) {
+                //    motor.direction = -1;
+                    motor.turnByDegrees(degrees, 100);
+                }
+            });
+
+            // Run for some time even when no motor is connected
+          //  setTimeout(resolve, time);
+                           resolve();
+        });
+    }
+                                
     motorSetPower (args) {
         const port = Cast.toNumber(args.PORT);
         const power = MathUtil.clamp(Cast.toNumber(args.POWER), 0, 100);
