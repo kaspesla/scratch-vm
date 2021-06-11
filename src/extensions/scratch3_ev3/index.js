@@ -121,7 +121,8 @@ const Ev3Device = {
     8: 'mediumMotor',
     7: 'largeMotor',
     126: 'none',
-    125: 'none'
+    125: 'none',
+    6 : 'temperature'
 };
 
 /**
@@ -147,7 +148,8 @@ const Ev3Label = {
     touch: 'button',
     color: 'brightness',
     ultrasonic: 'distance',
-    ir : 'distance'
+    ir : 'distance',
+    temperature : 'temperature'
 };
 
 /**
@@ -547,7 +549,8 @@ class EV3 {
         this._sensors = {
             distance: 0,
             brightness: 0,
-            buttons: [0, 0, 0, 0]
+            buttons: [0, 0, 0, 0],
+            temperature: 0
         };
 
         /**
@@ -606,6 +609,11 @@ class EV3 {
         value = Math.round(100 * value) / 100;
 
         return value;
+    }
+                                
+
+    get temperature () {
+        return this._sensors.temperature;
     }
 
     get brightness () {
@@ -713,6 +721,7 @@ class EV3 {
         this._sensors = {
             distance: 0,
             brightness: 0,
+            temperature: 0,
             buttons: [0, 0, 0, 0]
         };
         this._motors = [null, null, null, null];
@@ -1309,6 +1318,7 @@ class Scratch3Ev3Blocks {
                     }),
                     blockType: BlockType.REPORTER
                 },
+                     
                 {
                     opcode: 'getBrightness',
                     text: formatMessage({
@@ -1318,6 +1328,15 @@ class Scratch3Ev3Blocks {
                     }),
                     blockType: BlockType.REPORTER
                 },
+                     {
+                         opcode: 'getTemp',
+                         text: formatMessage({
+                             id: 'ev3.getTemp',
+                             default: 'temperature',
+                             description: 'gets measured distance'
+                         }),
+                         blockType: BlockType.REPORTER
+                     },
                 {
                     opcode: 'beep',
                     text: formatMessage({
@@ -1582,6 +1601,10 @@ class Scratch3Ev3Blocks {
 
     getDistance () {
         return this._peripheral.distance;
+    }
+
+    getTemp () {
+        return this._peripheral.temperature;
     }
 
     getBrightness () {
