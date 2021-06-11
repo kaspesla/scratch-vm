@@ -815,8 +815,17 @@ class EV3 {
      */
     _onConnect () {
         this._pollingIntervalID = window.setInterval(this._pollValues, this._pollingInterval);
+         var ev3 = this;
+        for (let x = 0; x < 6; x++) {
+            setTimeout(function() {  ev3.beep((x*300)+300,70) }, 300+(x*70));
+        }
+        for (let x = 0; x < 6; x++) {
+            let y = 6-x;
+            setTimeout(function() {  ev3.beep((y*300)+300,70) }, 700+(x*70));
+        }
     }
 
+                                
     /**
      * Poll the EV3 for sensor and motor input values, based on the list of
      * known connected sensors and motors. This is sent as many compound commands
@@ -1356,6 +1365,7 @@ class Scratch3Ev3Blocks {
                         }
                     }
                 },
+                     /*
                 {
                     opcode: 'display',
                     text: formatMessage({
@@ -1371,6 +1381,7 @@ class Scratch3Ev3Blocks {
                         }
                     }
                 }
+                      */
             ],
             menus: {
                 motorPorts: {
