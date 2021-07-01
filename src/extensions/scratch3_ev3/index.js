@@ -75,6 +75,7 @@ const Ev3Command = {
  * @enum {number}
  */
 const Ev3Opcode = {
+    OPOUTPUT_STEP_POWER: 0xAC,
     OPOUTPUT_STEP_SPEED: 0xAE,
     OPOUTPUT_TIME_SPEED: 0xAF,
     OPOUTPUT_STOP: 0xA3,
@@ -386,11 +387,11 @@ class EV3Motor {
         const ramp = Ev3Args.RAMP;
 
         let byteCommand = [];
-        byteCommand[0] = Ev3Opcode.OPOUTPUT_STEP_SPEED;
+        byteCommand[0] = Ev3Opcode.OPOUTPUT_STEP_POWER;
 
         // Setup motor run duration and ramping behavior
-        let rampup = ramp;
-        let rampdown = ramp;
+        let rampup = 0; //no ramp
+        let rampdown = 0;
       
         // Generate motor command values
         const runcmd = this._runValues(n);
