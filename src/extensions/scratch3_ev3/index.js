@@ -49,6 +49,7 @@ const Ev3Encoding = {
     ONE_BYTE: 0x81, // = 0b1000-001, "1 byte to follow"
     TWO_BYTES: 0x82, // = 0b1000-010, "2 bytes to follow"
     FOUR_BYTES: 0x83, // = 0b1000-011, "4 bytes to follow"
+    STRING_ENCODING: 0x84,
     GLOBAL_VARIABLE_ONE_BYTE: 0xE1, // = 0b1110-001, "1 byte to follow"
     GLOBAL_CONSTANT_INDEX_0: 0x20, // = 0b00100000
     GLOBAL_VARIABLE_INDEX_0: 0x60 // = 0b01100000
@@ -86,8 +87,10 @@ const Ev3Opcode = {
     OPSOUND: 0x94,
     OPSOUND_CMD_TONE: 1,
     OPSOUND_CMD_STOP: 0,
+    OPSOUND_CMD_PLAY: 2,
     OPINPUT_DEVICE_LIST: 0x98,
     OPINPUT_READSI: 0x9D
+
 };
 
 /**
@@ -649,6 +652,35 @@ class EV3 {
                 time,
                 time >> 8
             ]
+        );
+
+        this.send(cmd);
+    }
+                                
+    _stringToByteArray(instring)
+    {
+        var byteArray = [];
+        instring.split('').map(function (c) { var hex = c.charCodeAt(0); byteArray.push(hex) });
+        byteArray.push(0);
+        return byteArray;
+    }
+                                
+    playFile (file_name) {
+        let path = "/home/root/lms2012/prjs/Project/" + file_name
+        let byteCommand =
+                [
+                    Ev3Opcode.OPSOUND,
+                    Ev3Opcode.OPSOUND_CMD_PLAY,
+                    Ev3Encoding.ONE_BYTE,
+                    100, // volume?
+                    Ev3Encoding.STRING_ENCODING
+                ]
+
+        byteCommand = byteCommand.concat(this._stringToByteArray(path));
+
+        const cmd = this.generateCommand(
+            Ev3Command.DIRECT_COMMAND_NO_REPLY,
+            byteCommand
         );
 
         this.send(cmd);
@@ -1366,6 +1398,22 @@ class Scratch3Ev3Blocks {
                         }
                     }
                 },
+                     {
+                     opcode: 'play',
+                         text: formatMessage({
+                             id: 'ev3.playSound',
+                             default: 'play [FILENAME]',
+                             description: 'play sound file on EV3'
+                         }),
+                         blockType: BlockType.COMMAND,
+                         arguments: {
+                             FILENAME: {
+                                 type: ArgumentType.STRING,
+                                 menu: 'soundMenu',
+                                 defaultValue: "Bark 1"
+                             }
+                         }
+                     },
                      /*
                 {
                     opcode: 'display',
@@ -1408,7 +1456,12 @@ class Scratch3Ev3Blocks {
                 driveMenu: {
                      acceptReporters: true,
                      items: this._formatMenu(["forwards", "backward", "right", "left"])
-                 }
+                 },
+                soundMenu:
+                {
+                    acceptReporters: true,
+                    items: this._stringMenu(["Cat purr", "Dog bark 1", "Dog bark 2", "Dog growl", "Dog sniff", "Dog whine", "Elephant call", "Insect buzz 1", "Insect buzz 2", "Snake hiss", "Snake rattle", "T-rex roar"])
+                }
             }
         };
     }
@@ -1650,6 +1703,13 @@ class Scratch3Ev3Blocks {
         });
     }
 
+      play (args) {
+          return new Promise(resolve => {
+              this._peripheral.playFile(args.FILENAME);
+              setTimeout(resolve, 1000);
+          });
+      }
+
     /**
      * Call a callback for each motor indexed by the provided motor ID.
      *
@@ -1713,6 +1773,17 @@ class Scratch3Ev3Blocks {
             const obj = {};
             obj.text = menu[i];
             obj.value = i.toString();
+            m.push(obj);
+        }
+        return m;
+    }
+                                  
+   _stringMenu (menu) {
+        const m = [];
+        for (let i = 0; i < menu.length; i++) {
+            const obj = {};
+            obj.text = menu[i];
+            obj.value = menu[i];
             m.push(obj);
         }
         return m;
