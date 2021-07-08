@@ -21,4 +21,4 @@ npm-*
 # Localization
 /translations
 
-package-lock.json
+#package-lock.json
