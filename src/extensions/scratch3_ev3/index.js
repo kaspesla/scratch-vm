@@ -1460,7 +1460,7 @@ class Scratch3Ev3Blocks {
                 soundMenu:
                 {
                     acceptReporters: true,
-                    items: this._stringMenu(["Cat purr", "Dog bark 1", "Dog bark 2", "Dog growl", "Dog sniff", "Dog whine", "Elephant call", "Insect buzz 1", "Insect buzz 2", "Snake hiss", "Snake rattle", "T-rex roar"])
+                    items: this._stringMenu(["Backing alert", "Boing", "Cat purr", "Dog bark 1", "Dog bark 2", "Dog growl", "Dog sniff", "Dog whine", "Start up", "T-rex roar"])
                 }
             }
         };
