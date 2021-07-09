@@ -115,17 +115,48 @@ class BT extends JSONRPC {
      * @param {object} params - a received list of parameters.
      * @return {object} - optional return value.
      */
+    
+    setCookie(cname, cvalue, exdays) {
+      const d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      let expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    
+     getCookie(cname) {
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(';');
+      for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+    
     didReceiveCall (method, params) {
         // TODO: Add peripheral 'undiscover' handling
+        
+        let savedDevice = this.getCookie("savedDevice");
+
         switch (method) {
         case 'didDiscoverPeripheral':
-            this._availablePeripherals[params.peripheralId] = params;
-            this._runtime.emit(
-                this._runtime.constructor.PERIPHERAL_LIST_UPDATE,
-                this._availablePeripherals
-            );
-            if (this._discoverTimeoutID) {
-                window.clearTimeout(this._discoverTimeoutID);
+            if (!savedDevice || savedDevice == params.name)
+            {
+                this._availablePeripherals[params.peripheralId] = params;
+                this._runtime.emit(
+                    this._runtime.constructor.PERIPHERAL_LIST_UPDATE,
+                    this._availablePeripherals
+                );
+                if (this._discoverTimeoutID) {
+                    window.clearTimeout(this._discoverTimeoutID);
+                }
+                this.setCookie("savedDevice", params.name, 365);
             }
             break;
         case 'userDidPickPeripheral':

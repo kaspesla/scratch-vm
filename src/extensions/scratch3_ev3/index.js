@@ -666,7 +666,7 @@ class EV3 {
     }
                                 
     playFile (file_name) {
-        let path = "/home/root/lms2012/prjs/Project/" + file_name
+        let path = "/home/root/lms2012/prjs/test/" + file_name
         let byteCommand =
                 [
                     Ev3Opcode.OPSOUND,
@@ -1410,7 +1410,7 @@ class Scratch3Ev3Blocks {
                              FILENAME: {
                                  type: ArgumentType.STRING,
                                  menu: 'soundMenu',
-                                 defaultValue: "Bark 1"
+                                 defaultValue: "Boing"
                              }
                          }
                      },
