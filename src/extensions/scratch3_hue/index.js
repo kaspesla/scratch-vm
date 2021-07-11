@@ -40,7 +40,7 @@ class Scratch3HueBlocks
 
         this.lights = {};
         this.groups = {};
-        this.menuNames = ["No Lights", "None at all"];
+        this.menuNames = ["Lamp 1"];
         this.gotLights = false;
 
         this.configCallback = 0;
@@ -83,7 +83,7 @@ class Scratch3HueBlocks
                         {
                             type: ArgumentType.STRING,
                             menu: 'lights',
-                            //    defaultValue: "No Lights"
+                         //   defaultValue: "Light 1"
                         }
                     }
                 },
@@ -102,7 +102,7 @@ class Scratch3HueBlocks
                         {
                             type: ArgumentType.STRING,
                             menu: 'lights',
-                            //    defaultValue: "No Lights"
+                         //   defaultValue: "Light 1"
 
                         }
                     }
@@ -548,6 +548,8 @@ class Scratch3HueBlocks
             .then(responseText =>
             {
                 const data = JSON.parse(responseText);
+
+                this.menuNames = [];
 
                 console.log(data);
                 try
