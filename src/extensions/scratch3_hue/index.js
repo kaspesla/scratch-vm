@@ -339,7 +339,7 @@ class Scratch3HueBlocks
                         PORT:
                         {
                             type: ArgumentType.STRING,
-                            defaultValue: "80"
+                            defaultValue: "443"
                         }
                     }
                 }]
@@ -389,7 +389,7 @@ class Scratch3HueBlocks
     {
         alert("You're good to go. You won't have to reconnect next time.");
 
-        var url = "http://" + server + ":" + port + "/api/" + username + "/";
+        var url = "https://" + server + ":" + port + "/api/" + username + "/";
 
         this.createCookie("lightserver", url);
         console.log("username: " + url);
@@ -401,18 +401,14 @@ class Scratch3HueBlocks
     tryToMakeUser(server, port)
     {
 
-        var url = "http://" + server + ":" + port + "/api/";
+        var url = "https://" + server + ":" + port + "/api";
         var command = {
             "devicetype": "scratchx#extension"
         };
         fetch(url,
             {
                 method: 'post',
-                body: JSON.stringify(command),
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              mode: 'cors'
+                body: JSON.stringify(command)
             })
             .then(response => response.text())
             .then(responseText =>
@@ -493,7 +489,7 @@ class Scratch3HueBlocks
     pingGroups()
     {
         let ext = this;
-        var url = this.lightserver + "groups/";
+        var url = this.lightserver + "groups";
         fetch(url,
             {
                 method: 'get'
@@ -543,7 +539,7 @@ class Scratch3HueBlocks
     {
         let ext = this;
 
-        var url = this.lightserver + "lights/";
+        var url = this.lightserver + "lights";
         fetch(url,
             {
                 method: 'get'
