@@ -401,7 +401,7 @@ class Scratch3HueBlocks
     tryToMakeUser(server, port)
     {
 
-        var url = "http://" + server + ":" + port + "/api";
+        var url = "http://" + server + ":" + port + "/api/";
         var command = {
             "devicetype": "scratchx#extension"
         };
@@ -489,7 +489,7 @@ class Scratch3HueBlocks
     pingGroups()
     {
         let ext = this;
-        var url = this.lightserver + "groups";
+        var url = this.lightserver + "groups/";
         fetch(url,
             {
                 method: 'get'
@@ -539,7 +539,7 @@ class Scratch3HueBlocks
     {
         let ext = this;
 
-        var url = this.lightserver + "lights";
+        var url = this.lightserver + "lights/";
         fetch(url,
             {
                 method: 'get'
