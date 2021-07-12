@@ -408,7 +408,11 @@ class Scratch3HueBlocks
         fetch(url,
             {
                 method: 'post',
-                body: JSON.stringify(command)
+                body: JSON.stringify(command),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              mode: 'cors'
             })
             .then(response => response.text())
             .then(responseText =>
