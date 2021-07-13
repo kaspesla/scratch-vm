@@ -367,7 +367,7 @@ class Scratch3HueBlocks
             setTimeout(() =>
             {
                 resolve();
-            }, time);
+            }, time * 1000);
         });
     }
 
