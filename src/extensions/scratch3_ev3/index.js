@@ -203,7 +203,7 @@ class EV3Motor {
          * @type {number}
          * @private
          */
-        this._power = 50;
+        this._power = 100;
 
         /**
          * This motor's current position, in the range [0,360].
@@ -1455,7 +1455,7 @@ class Scratch3Ev3Blocks {
                 },
                 driveMenu: {
                      acceptReporters: true,
-                     items: this._formatMenu(["forwards", "backward", "right", "left"])
+                     items: this._formatMenu(["forwards", "backwards", "right", "left"])
                  },
                 soundMenu:
                 {
@@ -1530,22 +1530,22 @@ class Scratch3Ev3Blocks {
           if (driveHow == 0) // forward
           {
              this._motorTurnOn(ports[0], 1);
-             this._motorTurnOn(ports[1], -1);
+             this._motorTurnOn(ports[1], 1);
           }
           else if (driveHow == 1) // backward
           {
              this._motorTurnOn(ports[0], -1);
-             this._motorTurnOn(ports[1], 1);
+             this._motorTurnOn(ports[1], -1);
           }
-          else if (driveHow == 2) // backward
+          else if (driveHow == 2) // right
           {
              this._motorTurnOn(ports[0], 1);
-             this._motorTurnOn(ports[1], 1);
+             this._motorTurnOn(ports[1], -1);
           }
-          else if (driveHow == 3) // backward
+          else if (driveHow == 3) // left
           {
              this._motorTurnOn(ports[0], -1);
-             this._motorTurnOn(ports[1], -1);
+             this._motorTurnOn(ports[1], 1);
           }
     }
                                 
