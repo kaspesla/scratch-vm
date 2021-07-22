@@ -1605,11 +1605,11 @@ class Scratch3Ev3Blocks {
         if (motor) {
           if (how == 0)
             {
-               motor.coast();
+                motor.brake();
             }
             else
             {
-                motor.brake();
+               motor.coast();
             }
         }
     });
