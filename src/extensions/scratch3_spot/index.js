@@ -1,3 +1,4 @@
+const { number } = require('format-message');
 const formatMessage = require('format-message');
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
@@ -6,6 +7,7 @@ const fetchWithTimeout = require('../../util/fetch-with-timeout');
 const log = require('../../util/log');
 
 const serverTimeoutMs = 10000; // 10 seconds (chosen arbitrarily).
+var connectionIsValid = false;
 
 
 /**
@@ -56,24 +58,22 @@ class Scratch3SpotBlocks {
             name: 'Spot',
             blockIconURI: blockIconURI,
             blocks: [
-                     /*
                 {
-                    opcode: 'getWeather',
+                    opcode: 'connectRobot',
                     text: formatMessage({
-                        id: 'spot1',
-                        default: 'Get weather',
-                        description: 'Get weather'
+                        id: 'connectRobot',
+                        default: 'connect to Spot',
+                        description: 'Connect to Spot'
                     }),
-                    blockType: BlockType.REPORTER,
-                   
-                }
-                 ,*/
+                    blockType: BlockType.COMMAND,
+                    
+                },
                {
                     opcode: 'stand',
                     text: formatMessage({
                         id: 'stand',
                         default: 'stand',
-                        description: 'Stand'
+                        description: 'Tell Spot to stand'
                     }),
                     blockType: BlockType.COMMAND,
                    
@@ -90,91 +90,161 @@ class Scratch3SpotBlocks {
                     opcode: 'turnRight',
                     text: formatMessage({
                         id: 'turnRight',
-                        default: 'turn right',
+                        default: 'turn right [degrees] degrees',
                         description: 'Turn Right'
                     }),
                     blockType: BlockType.COMMAND,
+                    arguments: {
+                        degrees: {
+                            type: "number",
+                            defaultValue: 90
+                        }
+                    }
                    
                 },
                      {
                     opcode: 'turnLeft',
                     text: formatMessage({
                         id: 'turnLeft',
-                        default: 'turn left',
+                        default: 'turn left [degrees] degrees',
                         description: 'Turn Left'
                     }),
                     blockType: BlockType.COMMAND,
+                    arguments: {
+                        degrees: {
+                            type: "number",
+                            defaultValue: 90
+                        }
+                    }
                    
                 },
                      {
                          opcode: 'forward',
                          text: formatMessage({
                              id: 'forward',
-                             default: 'forward',
-                             description: 'Forward'
+                             default: 'move forward [distance]',
+                             description: 'Move Forward'
                          }),
                          blockType: BlockType.COMMAND,
+                         arguments: {
+                             distance: {
+                                 type: "number",
+                                 defaultValue: 1
+                             }
+                         }
                         
                      },
                       {
                          opcode: 'backward',
                          text: formatMessage({
                              id: 'backward',
-                             default: 'backward',
-                             description: 'Backward'
+                             default: 'move backward [distance]',
+                             description: 'Move Backward'
                          }),
                          blockType: BlockType.COMMAND,
+                         arguments: {
+                             distance: {
+                                 type: "number",
+                                 defaultValue: 1
+                             }
+                         }
                         
                      },
                      {
-                    opcode: 'powerOn',
-                    text: formatMessage({
-                        id: 'powerOn',
-                        default: 'toggle power',
-                        description: 'Toggle Power'
-                    }),
-                    blockType: BlockType.COMMAND,
-                   
-                },
-                     {
-                    opcode: 'eStop',
-                    text: formatMessage({
-                        id: 'eStop',
-                        default: 'Emergency Stop',
-                        description: 'Emergency Stop'
-                    }),
-                    blockType: BlockType.COMMAND,
-                   
-                }
+                        opcode: 'moveLeft',
+                        text: formatMessage({
+                            id: 'moveLeft',
+                            default: 'move left [distance]',
+                            description: 'move left'
+                        }),
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            distance: {
+                                type: "number",
+                                defaultValue: 1
+                            }
+                        }
+                       
+                    },
+                    {
+                        opcode: 'moveRight',
+                        text: formatMessage({
+                            id: 'moveRight',
+                            default: 'move right [distance]',
+                            description: 'move right'
+                        }),
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            distance: {
+                                type: "number",
+                                defaultValue: 1
+                            }
+                        }
+                       
+                    },
+                    {
+                        opcode: 'moveBody',
+                        text: formatMessage({
+                            id: 'moveBody',
+                            default: 'move forward:[x] sideways:[y] turn:[z] degrees',
+                            description: 'Move Body'
+                        }),
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            "x": {
+                                type: "number",
+                                defaultValue: "1"
+                            },
+                            "y": {
+                                type: "number",
+                                defaultValue: "0"
+                            },
+                            "z": {
+                                type: "number",
+                                defaultValue: "0"
+                            }
+                        }
+                       
+                    },
+                    {
+                        opcode: 'rotateBody',
+                        text: formatMessage({
+                            id: 'rotateBody',
+                            default: 'rotate pitch:[pitch] yaw:[yaw] roll:[roll] degrees',
+                            description: 'Rotate Body'
+                        }),
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            "pitch": {
+                                type: "number",
+                                defaultValue: "0"
+                            },
+                            "yaw": {
+                                type: "number",
+                                defaultValue: "0"
+                            },
+                            "roll": {
+                                type: "number",
+                                defaultValue: "0"
+                            }
+                        }
+                       
+                    },
             ]
         };
     }
 
-    getWeather (args) {
-     
-        var inputVal = "Amesbury";
-        var apiKey = "bd9989ac922908fed9b1ec1521595d99";
-
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${inputVal}&appid=${apiKey}&units=imperial`;
-    
-    
-         const translatePromise = fetchWithTimeout(url, {}, serverTimeoutMs)
-              .then(response => response.text())
-              .then(responseText => {
-                  const translated = JSON.parse(responseText).main.temp;
-                     return translated;
-                    })
-             .catch(err => {
-                 log.warn(`error fetching weather! ${err}`);
-                 return '';
-             });
-         return translatePromise;
+    connectRobot(args) {
+        this._makeRequest("connectRobot").then() 
+        {
+            return;
+        }
     }
-    
+
     stand (args)
     {
         
-        this._makeRequest("f").then()
+        this._makeRequest("stand").then()
         {
             return;
         }
@@ -182,7 +252,7 @@ class Scratch3SpotBlocks {
     sit (args)
     {
         
-        this._makeRequest("v").then()
+        this._makeRequest("sit").then()
         {
             return;
         }
@@ -190,8 +260,12 @@ class Scratch3SpotBlocks {
         
        turnRight (args)
        {
-           
-           this._makeRequest("e").then()
+           const cmdArgs = {
+            x: 0,
+            y: 0,
+            z: args.degrees * -1
+           };
+           this._makeRequest("move", args=cmdArgs).then()
            {
                return;
            }
@@ -200,58 +274,117 @@ class Scratch3SpotBlocks {
     
        turnLeft (args)
        {
-           this._makeRequest("q").then()
+           const cmdArgs = {
+            x: 0,
+            y: 0,
+            z: args.degrees
+           };
+           this._makeRequest("move", args=cmdArgs).then()
            {
-            return;
-          }
-       }
-   
-    powerOn (args)
-       {
-           this._makeRequest("P").then()
-           {
-            return;
-          }
-       }
-    
-    eStop (args)
-       {
-           this._makeRequest("E").then()
-           {
-            return;
-          }
-       }
-    
-    forward (args)
-          {
-              this._makeRequest("w").then()
-              {
                return;
-             }
-          }
+           }
+       }
+
+    forward (args)
+    {
+        const cmdArgs = {
+            x: args.distance,
+            y: 0,
+            z: 0
+        }
+        this._makeRequest("move", args=cmdArgs).then()
+        {
+        return;
+        }
+    }
     
     backward (args)
-          {
-              this._makeRequest("s").then()
-              {
-               return;
-             }
-          }
-    
-    _makeRequest(req)
     {
-        const url = "http://localhost:8080/"  + req;
+        const cmdArgs = {
+            x: args.distance * -1,
+            y: 0,
+            z: 0
+        }
+        this._makeRequest("move", args=cmdArgs).then()
+        {
+        return;
+        }
+    }
+
+    moveRight(args) {
+        const cmdArgs = {
+            x: 0,
+            y: args.distance,
+            z: 0
+        };
+        this._makeRequest("move", args=cmdArgs).then()
+        {
+            return;
+        }
+    }
+
+    moveLeft(args) {
+        const cmdArgs = {
+            x: 0,
+            y: args.distance * -1,
+            z: 0
+        };
+        this._makeRequest("move", args=cmdArgs).then()
+        {
+            return;
+        }
+    }
+
+    moveBody(args) {
+        const cmdArgs = args;
+        this._makeRequest("move", args=args).then()
+        {
+            return;
+        }
+    }
+
+    rotateBody(args) {
+        const cmdArgs = args;
+        this._makeRequest("rotate", args=args).then()
+        {
+            return;
+        }
+    }
     
-         const translatePromise = fetchWithTimeout(url, {}, serverTimeoutMs)
-              .then(response => response.text())
-              .then(responseText => {
-                //   log.warn(responseText);
-                    })
-             .catch(err => {
-                 log.warn(`error sending robot request! ${err}`);
-                 return '';
-             });
-         return translatePromise;
+    _makeRequest(commandName, args = {})
+    {
+        
+        let method = commandName == "connectRobot" ? "GET" : "POST";
+        let body = commandName == "connectRobot" ? null : JSON.stringify({
+            Command: commandName,
+            Args: args
+        })
+        if (commandName != "connectRobot" && !connectionIsValid) {
+            return new Promise(()=>{});
+        }
+
+        const url = "http://192.168.4.55:8000/command";
+
+        $.ajax({
+            type: method,
+            url: url,
+            data: body,
+            success: function (response) {
+                if (commandName == "connectRobot") {
+                    const valid = response['connection_valid'];
+                    if (!valid) 
+                        alert("You do not have access to Spot!");
+                    connectionIsValid = valid
+                    sessionStorage.setItem("cc-robot-connected", valid);
+                }
+                
+            },
+            error: function (response) {
+                log.warn(`error sending command to the robot ${response} `);
+            },
+        });
+
+        return new Promise(resolve => setTimeout(resolve, 1000));
     }
 }
 module.exports = Scratch3SpotBlocks;

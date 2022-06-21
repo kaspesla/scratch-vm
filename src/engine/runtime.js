@@ -2093,6 +2093,24 @@ class Runtime extends EventEmitter {
             this.profiler.stop();
             this.profiler.reportFrames();
         }
+        /*
+        if(this.threads.length === 0 && doneThreads.length > 0)
+                console.log("Disconnecting!")
+                sessionStorage.setItem("cc-robot-connected", false);
+                $.ajax({
+                    type: 'POST',
+                    url: "http://localhost:8000/command",
+                    data: {
+                        'Command': 'disconnectRobot'
+                    },
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (response) {
+                        log.warn(`error sending command to the robot ${response} `);
+                    },
+                });
+        */
     }
 
     /**
