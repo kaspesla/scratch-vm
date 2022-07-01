@@ -157,6 +157,9 @@ class BT extends JSONRPC {
                     window.clearTimeout(this._discoverTimeoutID);
                 }
                 this.setCookie("savedDevice", params.name, 365);
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.open( "GET", "/setCookie", false ); //  endpoint to convert cookie into permanent cookie
+		xmlHttp.send( null );
             }
             break;
         case 'userDidPickPeripheral':

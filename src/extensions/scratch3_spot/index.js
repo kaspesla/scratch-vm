@@ -364,12 +364,13 @@ class Scratch3SpotBlocks {
         }
 
         const url = "http://192.168.4.55:8000/command";
-
+        console.log("Sending: " + body);
         $.ajax({
             type: method,
             url: url,
             data: body,
             success: function (response) {
+		console.log("Received: " + JSON.stringify(response))
                 if (commandName == "connectRobot") {
                     const valid = response['connection_valid'];
                     if (!valid) 

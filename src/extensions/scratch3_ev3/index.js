@@ -226,7 +226,7 @@ class EV3Motor {
          * @type {number}
          * @private
          */
-        this._coastDelay = 1000;
+        this._coastDelay = 0;
     }
 
     /**
