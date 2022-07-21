@@ -166,6 +166,108 @@ class VirtualMachine extends EventEmitter {
         this.flyoutBlockListener = this.flyoutBlockListener.bind(this);
         this.monitorBlockListener = this.monitorBlockListener.bind(this);
         this.variableListener = this.variableListener.bind(this);
+
+	 // auto save scratch project to IndexedDB
+        let self = this;
+       
+        var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
+           IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
+        dbVersion = 2.0;
+
+        // Create/open database
+        var request = indexedDB.open("scratch-auto-save", dbVersion),
+
+        createObjectStore = function (dataBase)
+        {
+           dataBase.createObjectStore("scratch-auto-save");
+        },
+
+        putAutoSaveInDb = function (blob)
+        {
+           // Open a transaction to the database
+           var store = self.db.transaction(['scratch-auto-save'], 'readwrite').objectStore('scratch-auto-save');
+
+           // Put the blob into the dabase
+           var req = store.put(blob, 'blob');
+             req.onerror = function(e) {
+                 console.log(e);
+             };
+           req.onsuccess = function(event)
+            {
+                console.log('Successfully autosaved.');
+            };
+        };
+
+        request.onerror = function (event)
+        {
+           console.log("Error creating/accessing IndexedDB database");
+        };
+
+        request.onsuccess = function (event)
+        {
+           console.log("Success creating/accessing IndexedDB database");
+           self.db = request.result;
+
+           self.db.onerror = function (event)
+            {
+               console.log("Error creating/accessing IndexedDB database");
+           };
+           
+           // some kind of chrome hack?
+           if (self.db.setVersion) {
+               if (self.db.version != dbVersion) {
+                   var setVersion = self.db.setVersion(dbVersion);
+                   setVersion.onsuccess = function () {
+                       createObjectStore(self.db);
+                   };
+               }
+               else {
+               }
+           }
+           else {
+           }
+        }
+
+         request.onupgradeneeded = function (event) {
+          createObjectStore(event.target.result);
+        };
+
+        // auto-save interval
+        setInterval( function()
+        {
+            let prom = self.saveProjectSb3();
+            
+            prom.then(projectAsset => {
+                putAutoSaveInDb(projectAsset);
+
+            });
+        }, 5000);
+        
+        
+        // restore on laucnch
+        setTimeout(  function()
+        {
+            console.log("Restoring scratch-auto-save from IndexedDB");
+
+            var store = self.db.transaction(['scratch-auto-save']).objectStore('scratch-auto-save');
+            var result = store.get('blob');
+            result.onsuccess = function()
+            {
+                // convert blob into arraybuffer
+                var blob = result.result,
+                fileReader = new FileReader(),
+                array;
+
+                fileReader.onload = function() {
+                    array = this.result;
+                    // load it
+                    self.loadProject(array);
+                };
+
+                fileReader.readAsArrayBuffer(blob);
+            };
+                            
+        }, 1000);
     }
 
     /**
