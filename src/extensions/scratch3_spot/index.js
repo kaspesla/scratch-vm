@@ -6,8 +6,8 @@ const Cast = require('../../util/cast');
 const fetchWithTimeout = require('../../util/fetch-with-timeout');
 const log = require('../../util/log');
 
-const serverTimeoutMs = 10000; // 10 seconds (chosen arbitrarily).
-var connectionIsValid = false;
+const moveTimeoutMS = 200;
+const url = "http://192.168.4.55:8000/command";
 
 
 /**
@@ -58,16 +58,6 @@ class Scratch3SpotBlocks {
             name: 'Spot',
             blockIconURI: blockIconURI,
             blocks: [
-                {
-                    opcode: 'connectRobot',
-                    text: formatMessage({
-                        id: 'connectRobot',
-                        default: 'connect to Spot',
-                        description: 'Connect to Spot'
-                    }),
-                    blockType: BlockType.COMMAND,
-                    
-                },
                {
                     opcode: 'stand',
                     text: formatMessage({
@@ -86,7 +76,26 @@ class Scratch3SpotBlocks {
                     }),
                     blockType: BlockType.COMMAND,
                    
-                }, {
+                    
+                }, 
+                
+                {
+                    opcode: 'setHeight',
+                    text: formatMessage({
+                        id: 'setHeight',
+                        default: 'set height to [height]',
+                        description: 'Set the robot height'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        height: {
+                            type: "number",
+                            defaultValue: 1
+                        }
+                    }
+                },
+
+                {
                     opcode: 'turnRight',
                     text: formatMessage({
                         id: 'turnRight',
@@ -182,6 +191,7 @@ class Scratch3SpotBlocks {
                         }
                        
                     },
+                    /* Need to fix the handling of this command server-side
                     {
                         opcode: 'moveBody',
                         text: formatMessage({
@@ -206,12 +216,91 @@ class Scratch3SpotBlocks {
                         }
                        
                     },
+                    */
+                   {
+                    opcode: 'rotatePitchBy',
+                    text: formatMessage({
+                        id: 'rotatePitchBy',
+                        default: 'rotate pitch by [deg] degrees',
+                        description : 'Rotate Pitch'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        "deg": {
+                            type: "number",
+                            defaultValue: "0"
+                        }
+                    }
+                   },
+                   {
+                    opcode: 'rotateYawBy',
+                    text: formatMessage({
+                        id: 'rotateYawBy',
+                        default: 'rotate yaw by [deg] degrees',
+                        description : 'Rotate Yaw'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        "deg": {
+                            type: "number",
+                            defaultValue: "0"
+                        }
+                    }
+                   },
+                   {
+                    opcode: 'rotateRollBy',
+                    text: formatMessage({
+                        id: 'rotateRollBy',
+                        default: 'rotate roll by [deg] degrees',
+                        description : 'Rotate Roll'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        "deg": {
+                            type: "number",
+                            defaultValue: "0"
+                        }
+                    }
+                   },
+                   {
+                    opcode: 'resetRotation',
+                    text: formatMessage({
+                        id: 'reetRotation',
+                        default: 'reset rotation',
+                        descrption: 'Rotate body rotation'
+                    }),
+                    blockType: BlockType.COMMAND
+                   },
+                   {
+                    opcode: 'rotateBodyBy',
+                    text: formatMessage({
+                        id: 'rotateBodyBy',
+                        default: 'rotate by pitch:[pitch] yaw:[yaw] roll:[roll] degrees',
+                        description: 'Rotate Body By'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        "pitch": {
+                            type: "number",
+                            defaultValue: "0"
+                        },
+                        "yaw": {
+                            type: "number",
+                            defaultValue: "0"
+                        },
+                        "roll": {
+                            type: "number",
+                            defaultValue: "0"
+                        }
+                    }
+                   
+                },
                     {
-                        opcode: 'rotateBody',
+                        opcode: 'rotateBodyTo',
                         text: formatMessage({
-                            id: 'rotateBody',
-                            default: 'rotate pitch:[pitch] yaw:[yaw] roll:[roll] degrees',
-                            description: 'Rotate Body'
+                            id: 'rotateBodyTo',
+                            default: 'rotate to pitch:[pitch] yaw:[yaw] roll:[roll] degrees',
+                            description: 'Rotate Body To'
                         }),
                         blockType: BlockType.COMMAND,
                         arguments: {
@@ -234,56 +323,42 @@ class Scratch3SpotBlocks {
         };
     }
 
-    connectRobot(args) {
-        this._makeRequest("connectRobot").then() 
-        {
-            return;
-        }
-    }
-
     stand (args)
     {
         
-        this._makeRequest("stand").then()
-        {
-            return;
-        }
+        return this._makeRequest("stand");
     }
     sit (args)
     {
         
-        this._makeRequest("sit").then()
-        {
-            return;
-        }
+        return this._makeRequest("sit");
+    }
+    
+    setHeight(args) {
+        args['height'] = 2 + args['height'] * 33
+        return this._makeRequest("set_height", args=args)
     }
         
-       turnRight (args)
-       {
-           const cmdArgs = {
-            x: 0,
-            y: 0,
-            z: args.degrees * -1
-           };
-           this._makeRequest("move", args=cmdArgs).then()
-           {
-               return;
-           }
-       }
-    
-    
-       turnLeft (args)
-       {
-           const cmdArgs = {
-            x: 0,
-            y: 0,
-            z: args.degrees
-           };
-           this._makeRequest("move", args=cmdArgs).then()
-           {
-               return;
-           }
-       }
+    turnRight (args)
+    {
+        const cmdArgs = {
+        x: 0,
+        y: 0,
+        z: args.degrees * -1
+        };
+        return this._makeRequest("move", args=cmdArgs);
+    }
+
+
+    turnLeft (args)
+    {
+        const cmdArgs = {
+        x: 0,
+        y: 0,
+        z: args.degrees
+        };
+        return this._makeRequest("move", args=cmdArgs);
+    }
 
     forward (args)
     {
@@ -292,10 +367,7 @@ class Scratch3SpotBlocks {
             y: 0,
             z: 0
         }
-        this._makeRequest("move", args=cmdArgs).then()
-        {
-        return;
-        }
+        return this._makeRequest("move", args=cmdArgs);
     }
     
     backward (args)
@@ -305,87 +377,98 @@ class Scratch3SpotBlocks {
             y: 0,
             z: 0
         }
-        this._makeRequest("move", args=cmdArgs).then()
-        {
-        return;
-        }
+        return this._makeRequest("move", args=cmdArgs);
     }
 
     moveRight(args) {
         const cmdArgs = {
             x: 0,
-            y: args.distance,
+            y: args.distance * -1,
             z: 0
         };
-        this._makeRequest("move", args=cmdArgs).then()
-        {
-            return;
-        }
+        return this._makeRequest("move", args=cmdArgs);
     }
 
     moveLeft(args) {
         const cmdArgs = {
             x: 0,
-            y: args.distance * -1,
+            y: args.distance * 1,
             z: 0
         };
-        this._makeRequest("move", args=cmdArgs).then()
-        {
-            return;
+        return this._makeRequest("move", args=cmdArgs);
+    }
+
+    rotatePitchBy(args) {
+        const cmdArgs = {
+            'pitch': args.deg,
+            'yaw': 0,
+            'roll': 0
         }
+        return this._makeRequest("rotate_by", args=cmdArgs);
+    }
+
+    rotateYawBy(args) {
+        const cmdArgs = {
+            'pitch': 0,
+            'yaw': args.deg,
+            'roll': 0
+        }
+        return this._makeRequest("rotate_by", args=cmdArgs);
+    }
+
+    rotateRollBy(args) {
+        const cmdArgs = {
+            'pitch': 0,
+            'yaw': 0,
+            'roll': args.deg
+        }
+        return this._makeRequest("rotate_by", args=cmdArgs);
+    }
+
+    resetRotation(args) {
+        const cmdArgs = {
+            'pitch': 0,
+            'yaw': 0,
+            'roll': 0
+        }
+        return this._makeRequest("rotate", args = cmdArgs)
     }
 
     moveBody(args) {
-        const cmdArgs = args;
-        this._makeRequest("move", args=args).then()
-        {
-            return;
-        }
+        return this._makeRequest("move", args=args);
     }
 
-    rotateBody(args) {
-        const cmdArgs = args;
-        this._makeRequest("rotate", args=args).then()
-        {
-            return;
-        }
+    rotateBodyBy(args) {
+        return this._makeRequest("rotate_by", args=args);
+    }
+
+    rotateBodyTo(args) {
+        return this._makeRequest("rotate", args=args);
     }
     
-    _makeRequest(commandName, args = {})
+    _makeRequest(commandName, args = {}, waitTime = moveTimeoutMS)
     {
         
-        let method = commandName == "connectRobot" ? "GET" : "POST";
-        let body = commandName == "connectRobot" ? null : JSON.stringify({
+        let method = "POST";
+        let body = JSON.stringify({
             Command: commandName,
             Args: args
         })
-        if (commandName != "connectRobot" && !connectionIsValid) {
-            return new Promise(()=>{});
-        }
 
-        const url = "http://192.168.4.55:8000/command";
         console.log("Sending: " + body);
         $.ajax({
             type: method,
             url: url,
             data: body,
             success: function (response) {
-		console.log("Received: " + JSON.stringify(response))
-                if (commandName == "connectRobot") {
-                    const valid = response['connection_valid'];
-                    if (!valid) 
-                        alert("You do not have access to Spot!");
-                    connectionIsValid = valid
-                    sessionStorage.setItem("cc-robot-connected", valid);
-                }
-                
+                console.log("Received: " + JSON.stringify(response))
             },
             error: function (response) {
                 log.warn(`error sending command to the robot ${response} `);
             },
         });
 
-        return new Promise(resolve => setTimeout(resolve, 1000));
+        return new Promise(resolve => setTimeout(resolve, waitTime));
     }
 }
 module.exports = Scratch3SpotBlocks;

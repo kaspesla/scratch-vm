@@ -136,13 +136,9 @@ const Ev3Device = {
  * @readonly
  * @enum {number}
  */
-
-
-var colorNames = [ "none", "black", "blue", "green", "yellow", "red", "white"];
-
 const Ev3Mode = {
     touch: 0, // touch
-    color: 2, // ambient
+    color: 1, // ambient
     ultrasonic: 1, // inch
     none: 0
 };
@@ -1369,8 +1365,8 @@ class Scratch3Ev3Blocks {
                     opcode: 'getBrightness',
                     text: formatMessage({
                         id: 'ev3.getBrightness',
-                        default: 'color',
-                        description: 'gets measured color'
+                        default: 'brightness',
+                        description: 'gets measured brightness'
                     }),
                     blockType: BlockType.REPORTER
                 },
@@ -1630,7 +1626,7 @@ class Scratch3Ev3Blocks {
         const motor = this._peripheral.motor(port);
         let position = 0;
         if (motor) {
-            position = motor.position; //MathUtil.wrapClamp(motor.position, 0, 360);
+            position = MathUtil.wrapClamp(motor.position, 0, 360);
         }
 
         return position;
@@ -1677,7 +1673,7 @@ class Scratch3Ev3Blocks {
     }
 
     getBrightness () {
-        return colorNames[this._peripheral.brightness];
+        return this._peripheral.brightness;
     }
 
     _playNoteForPicker (note, category) {

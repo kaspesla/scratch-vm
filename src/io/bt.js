@@ -142,7 +142,7 @@ class BT extends JSONRPC {
     didReceiveCall (method, params) {
         // TODO: Add peripheral 'undiscover' handling
         
-        let savedDevice = this.getCookie("savedDevice");
+        let savedDevice = localStorage.getItem("savedDevice");
 
         switch (method) {
         case 'didDiscoverPeripheral':
@@ -156,10 +156,11 @@ class BT extends JSONRPC {
                 if (this._discoverTimeoutID) {
                     window.clearTimeout(this._discoverTimeoutID);
                 }
-                this.setCookie("savedDevice", params.name, 365);
-		var xmlHttp = new XMLHttpRequest();
-		xmlHttp.open( "GET", "/setCookie", false ); //  endpoint to convert cookie into permanent cookie
-		xmlHttp.send( null );
+                //this.setCookie("savedDevice", params.name, 365);
+		//var xmlHttp = new XMLHttpRequest();
+		//xmlHttp.open( "GET", "/setCookie", false ); //  endpoint to convert cookie into permanent cookie
+		//xmlHttp.send( null );
+		localStorage.setItem('savedDevice', params.name);
             }
             break;
         case 'userDidPickPeripheral':
