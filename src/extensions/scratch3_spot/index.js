@@ -6,7 +6,9 @@ const Cast = require('../../util/cast');
 const fetchWithTimeout = require('../../util/fetch-with-timeout');
 const log = require('../../util/log');
 
-const moveTimeoutMS = 200;
+const moveTimeoutMS = 1000;
+const rotateTimeoutMS = 50;
+const sitStandTimeoutMS = 500;
 const url = "http://192.168.4.55:8000/command";
 
 
@@ -326,17 +328,17 @@ class Scratch3SpotBlocks {
     stand (args)
     {
         
-        return this._makeRequest("stand");
+        return this._makeRequest("stand", {}, waitTime=sitStandTimeoutMS);
     }
     sit (args)
     {
         
-        return this._makeRequest("sit");
+        return this._makeRequest("sit", {}, waitTime=sitStandTimeoutMS);
     }
     
     setHeight(args) {
-        args['height'] = 2 + args['height'] * 33
-        return this._makeRequest("set_height", args=args)
+        args['height'] = args['height']
+        return this._makeRequest("set_height", args=args, waitTime=sitStandTimeoutMS)
     }
         
     turnRight (args)
@@ -404,7 +406,7 @@ class Scratch3SpotBlocks {
             'yaw': 0,
             'roll': 0
         }
-        return this._makeRequest("rotate_by", args=cmdArgs);
+        return this._makeRequest("rotate_by", args=cmdArgs, waitTime=rotateTimeoutMS);
     }
 
     rotateYawBy(args) {
@@ -413,7 +415,7 @@ class Scratch3SpotBlocks {
             'yaw': args.deg,
             'roll': 0
         }
-        return this._makeRequest("rotate_by", args=cmdArgs);
+        return this._makeRequest("rotate_by", args=cmdArgs, waitTime=rotateTimeoutMS);
     }
 
     rotateRollBy(args) {
@@ -422,7 +424,7 @@ class Scratch3SpotBlocks {
             'yaw': 0,
             'roll': args.deg
         }
-        return this._makeRequest("rotate_by", args=cmdArgs);
+        return this._makeRequest("rotate_by", args=cmdArgs, waitTime=rotateTimeoutMS);
     }
 
     resetRotation(args) {
@@ -431,7 +433,7 @@ class Scratch3SpotBlocks {
             'yaw': 0,
             'roll': 0
         }
-        return this._makeRequest("rotate", args = cmdArgs)
+        return this._makeRequest("rotate", args = cmdArgs, waitTime=rotateTimeoutMS)
     }
 
     moveBody(args) {
@@ -439,11 +441,11 @@ class Scratch3SpotBlocks {
     }
 
     rotateBodyBy(args) {
-        return this._makeRequest("rotate_by", args=args);
+        return this._makeRequest("rotate_by", args=args, waitTime=rotateTimeoutMS);
     }
 
     rotateBodyTo(args) {
-        return this._makeRequest("rotate", args=args);
+        return this._makeRequest("rotate", args=args, waitTime=rotateTimeoutMS);
     }
     
     _makeRequest(commandName, args = {}, waitTime = moveTimeoutMS)
