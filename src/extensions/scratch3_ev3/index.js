@@ -144,6 +144,7 @@ const Ev3Mode = {
     touch: 0, // touch
     color: 2, // ambient
     ultrasonic: 1, // inch
+    ir: 0,
     none: 0
 };
 
@@ -556,6 +557,7 @@ class EV3 {
          */
         this._sensors = {
             distance: 0,
+            remote: 0,
             brightness: 0,
             buttons: [0, 0, 0, 0],
             temperature: 0
@@ -618,7 +620,10 @@ class EV3 {
 
         return value;
     }
-                                
+           
+    get remote () {
+        return Ev3Mode.ir != 2 ? -1 : this._sensors.remote;
+    }
 
     get temperature () {
         return this._sensors.temperature;
@@ -757,6 +762,7 @@ class EV3 {
         this._motorPorts = [];
         this._sensors = {
             distance: 0,
+            remote: 0,
             brightness: 0,
             temperature: 0,
             buttons: [0, 0, 0, 0]
@@ -941,6 +947,21 @@ class EV3 {
         this._pollingCounter++;
     }
 
+    ///
+    /// Ask Ken about this - do not touch
+    ///
+    getFloatResult(inputData)
+    {
+        var a = new ArrayBuffer(4);
+        var c = new Float32Array(a);
+        var arr = new Uint8Array(a);
+        arr[0] = inputData[0];
+        arr[1] = inputData[1];
+        arr[2] = inputData[2]
+        arr[3] = inputData[3]
+        return c[0];
+    }
+
     /**
      * Message handler for incoming EV3 reply messages, either a list of connected
      * devices (sensors and motors) or the values of the connected sensors and motors.
@@ -1020,6 +1041,17 @@ class EV3 {
                 } else if (Ev3Label[this._sensorPorts[i]]) { // if valid
                     // Read brightness / distance values and set to 0 if null
                     this._sensors[Ev3Label[this._sensorPorts[i]]] = value ? value : 0;
+                    if (Ev3Label[this._sensorPorts[i]] == 'distance')
+                    {
+                        let array = new Uint8Array([
+                            data[offset],
+                            data[offset + 1],
+                            data[offset + 2],
+                            data[offset + 3]
+                        ]);
+
+                        this._sensors.remote = this.getFloatResult(array);
+                     }
                 }
                 offset += 4;
             }
@@ -1310,6 +1342,22 @@ class Scratch3Ev3Blocks {
                     }
                 },
                 {
+                    opcode: 'setInfraredMode',
+                    text: formatMessage({
+                        id: 'ev3.setInfraredMode',
+                        default: 'set infrared sensor to [MODE]',
+                        description: 'changes the mode of the infrared sensor'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        MODE: {
+                            type: ArgumentType.STRING,
+                            menu: 'infraredMenu',
+                            defaultValue: "distance"
+                        }
+                    }
+                    },
+                {
                     opcode: 'whenDistanceLessThan',
                     text: formatMessage({
                         id: 'ev3.whenDistanceLessThan',
@@ -1351,6 +1399,38 @@ class Scratch3Ev3Blocks {
                         PORT: {
                             type: ArgumentType.STRING,
                             menu: 'sensorPorts',
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'getIsRemoteButtonPressed',
+                    text: formatMessage({
+                        id: 'ev3.getIsRemoteButtonPressed',
+                        default: 'remote button [CODE] pressed?',
+                        description: 'is the button on the infrared remote pressed?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        CODE: {
+                            type: ArgumentType.STRING,
+                            menu: 'remoteButtonMenu',
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'whenRemoteButtonPressed',
+                    text: formatMessage({
+                        id: 'ev3.whenRemoteButtonPressed',
+                        default: 'when remote button [CODE] pressed',
+                        description: 'when some button is pressed on the remote cnontrol'
+                    }),
+                    blockType: BlockType.HAT,
+                    arguments: {
+                        CODE: {
+                            type: ArgumentType.STRING,
+                            menu: 'remoteButtonMenu',
                             defaultValue: 0
                         }
                     }
@@ -1465,6 +1545,16 @@ class Scratch3Ev3Blocks {
                 {
                     acceptReporters: true,
                     items: this._stringMenu(["Backing alert", "Boing", "Cat purr", "Dog bark 1", "Dog bark 2", "Dog growl", "Dog sniff", "Dog whine", "Start up", "T-rex roar"])
+                },
+                infraredMenu:
+                {
+                    acceptReporters: true,
+                    items: this._formatMenu(["distance", "remote"])
+                },
+                remoteButtonMenu:
+                {
+                    acceptReporters: true,
+                    items: this._formatMenu(["Top Left", "Bottom Left", "Top Right", "Bottom Right"])
                 }
             }
         };
@@ -1669,7 +1759,52 @@ class Scratch3Ev3Blocks {
     }
 
     getDistance () {
-        return this._peripheral.distance;
+        return Ev3Mode.ir == 0 ? this._peripheral.distance : 100;
+    }
+
+    getIsRemoteButtonPressed (args) {
+        /** Button to code mappings
+         *  TL > 1
+         *  BL > 2
+         *  TR > 3
+         *  BR > 4
+         *  TL + TR > 5
+         *  TL + BR > 6
+         *  BL + TR > 7
+         *  BL + BR > 8
+         *  TB > 9
+         *  TL + BL > 10
+         *  TR + BR > 11
+         */
+        const buttonMap = {
+            0: [0],
+            1: [1],
+            2: [2],
+            3: [3],
+            4: [4],
+            5: [1, 3],
+            6: [1, 4],
+            7: [2, 3],
+            8: [2, 4],
+            9: [5],
+            10: [1, 2],
+            11: [3, 4] // Code 11 maps to top right (3) and bottom right (11)
+        };
+
+        let result = buttonMap[this._peripheral.remote];
+        if(!result) return false;
+
+        let ret = result.includes(parseInt(args.CODE) + 1);
+
+        return ret;
+    }
+
+    whenRemoteButtonPressed(args) {
+        return this.getIsRemoteButtonPressed(args);
+    }
+
+    setInfraredMode (args) {
+        Ev3Mode.ir = args.MODE == 0 ? 0 : 2;
     }
 
     getTemp () {
