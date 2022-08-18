@@ -48,6 +48,9 @@ export class SpotVideoFeed {
     getFrame({dimensions, mirror, format, cacheTimeout}) {
         const workspace = this._getWorkspace({dimensions: [640, 480], mirror: false});
         const {canvas, context, lastUpdate, cacheData} = workspace; 
+        console.log();
+        if(this._image.getAttribute("src") == null)
+            return;
         context.drawImage(this._image,
             // source x, y, width, height
             0, 0, this._image.width, this._image.height,

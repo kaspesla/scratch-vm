@@ -509,7 +509,7 @@ class Scratch3SpotBlocks {
             url: url,
             data: body,
             success: function (response) {
-                console.log("Received: " + JSON.stringify(response))
+                // console.log("Received: " + JSON.stringify(response))
             },
             error: function (response) {
                 log.warn(`error sending command to the robot ${response} `);
