@@ -1305,7 +1305,7 @@ class Scratch3Ev3Blocks {
                         HOW: {
                             type: ArgumentType.STRING,
                             menu: 'howStop',
-                            defaultValue: 'coast'
+                            defaultValue:1 
                         }
                     }
                 },
