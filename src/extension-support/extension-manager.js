@@ -25,6 +25,7 @@ const builtinExtensions = {
     makeymakey: () => require('../extensions/scratch3_makeymakey'),
     posenet2scratch: () => require('../extensions/scratch3_posenet2scratch'),
     spot: () => require('../extensions/scratch3_spot'),
+    gamepad: () => require('../extensions/scratch3_gamepad'),
     boost: () => require('../extensions/scratch3_boost'),
     gdxfor: () => require('../extensions/scratch3_gdx_for')
 };

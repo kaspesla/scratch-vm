@@ -247,6 +247,11 @@ class VirtualMachine extends EventEmitter {
         // restore on laucnch
         setTimeout(  function()
         {
+	    let restor = confirm("Reload from last time?")
+	    if (!restor)
+	    {
+	      return;
+            }
             console.log("Restoring scratch-auto-save from IndexedDB");
 
             var store = self.db.transaction(['scratch-auto-save']).objectStore('scratch-auto-save');
