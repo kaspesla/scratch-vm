@@ -67,6 +67,17 @@ class Scratch3SpotBlocks {
 
     }
 
+    _formatMenu (menu) {
+        const m = [];
+        for (let i = 0; i < menu.length; i++) {
+            const obj = {};
+            obj.text = menu[i];
+            obj.value = i.toString();
+            m.push(obj);
+        }
+        return m;
+    }
+
     /**
      * @returns {object} metadata for this extension and its blocks.
      */
@@ -129,6 +140,22 @@ class Scratch3SpotBlocks {
                         height: {
                             type: "number",
                             defaultValue: 1
+                        }
+                    }
+                },
+
+                {
+                    opcode: 'setLocomotionHint',
+                    text: formatMessage({
+                        id: 'setLocomotionHint',
+                        default: 'set walk style to [hint]',
+                        description: 'Set the robot walk style'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        hint: {
+                            type: ArgumentType.STRING,
+                            menu: 'locomotionHints'
                         }
                     }
                 },
@@ -357,7 +384,13 @@ class Scratch3SpotBlocks {
                         }
                        
                     },
-            ]
+            ],
+            menus: {
+                locomotionHints: {
+                    acceptReporters: true,
+                    items: this._formatMenu(['auto', 'trot', 'crawl', 'jog', 'hop'])
+                }
+            }
         };
     }
 
@@ -385,6 +418,12 @@ class Scratch3SpotBlocks {
     setHeight(args) {
         args['height'] = args['height']
         return this._makeRequest("set_height", args=args, waitTime=sitStandTimeoutMS)
+    }
+
+    setLocomotionHint(args) {
+        args['hint'] = ['auto', 'trot', 'crawl', 'jog', 'hop'][parseFloat(args['hint'])];
+        return this._makeRequest("set_locomotion_hint", args=args, waitTime=0)
+
     }
         
     turnRight (args)

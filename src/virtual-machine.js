@@ -226,12 +226,16 @@ class VirtualMachine extends EventEmitter {
            }
            else {
            }
+
+           offerToRestore();
         }
 
          request.onupgradeneeded = function (event) {
           createObjectStore(event.target.result);
         };
 
+	function startAutoSaving()
+	{
         // auto-save interval
         setInterval( function()
         {
@@ -242,14 +246,17 @@ class VirtualMachine extends EventEmitter {
 
             });
         }, 5000);
+	}
         
-        
+	function offerToRestore()
+	{
         // restore on laucnch
         setTimeout(  function()
         {
 	    let restor = confirm("Reload from last time?")
 	    if (!restor)
 	    {
+              startAutoSaving();
 	      return;
             }
             console.log("Restoring scratch-auto-save from IndexedDB");
@@ -270,9 +277,11 @@ class VirtualMachine extends EventEmitter {
                 };
 
                 fileReader.readAsArrayBuffer(blob);
+		startAutoSaving();
             };
                             
         }, 1000);
+ 	}
     }
 
     /**
