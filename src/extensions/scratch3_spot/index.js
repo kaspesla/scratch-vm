@@ -16,6 +16,39 @@ const rotateTimeoutMS = 50;
 const sitStandTimeoutMS = 500;
 const url = "http://192.168.4.55:8000/command";
 
+let name = window.prompt("Enter Your Name: ")
+
+const ws = new WebSocket("ws://192.168.4.55:8000/scratch-ws/");
+
+document.querySelector("#spot-name").style = "display: block !important";
+
+document.querySelector("#spot-name").value = name;
+document.querySelector("#spot-name").onchange = (e) => {
+    name = e.target.value;
+    ws.send(JSON.stringify({
+        type: "change-name",
+        name: name
+    }))
+}
+
+ws.onmessage = (message) => {
+    const data = JSON.parse(message['data']);
+
+    if (data.type == "request-name") {
+        ws.send(JSON.stringify({
+            type: "change-name",
+            name: name ?? "No Name"
+        }))
+    }
+    
+    if (data.type == "ping") {
+        ws.send(JSON.stringify({
+            type: "ping"
+        }));
+    }
+    
+}
+
 
 /**
  * Icon svg to be displayed at the left edge of each extension block, encoded as a data URI.
@@ -41,10 +74,11 @@ class Scratch3SpotBlocks {
          * @type {Runtime}
          */
         this.runtime = runtime;
-        this.videoFeed = new SpotVideoFeed.SpotVideoFeed();
 
-        this.runtime.ioDevices.video.setProvider(this.videoFeed);
-        this.runtime.ioDevices.video.enableVideo();
+        // this.videoFeed = new SpotVideoFeed.SpotVideoFeed();
+
+        // this.runtime.ioDevices.video.setProvider(this.videoFeed);
+        // this.runtime.ioDevices.video.enableVideo();
 
         /**
          * A toggle that alternates true and false each frame, so that an
