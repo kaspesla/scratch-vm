@@ -8,7 +8,7 @@ export class SpotVideoFeed {
         this.socket = null;
         this._workspace = [];
         this._image = new Image();
-
+        console.log("TEST!");
         
     }
 
@@ -17,6 +17,9 @@ export class SpotVideoFeed {
         this.socket = new WebSocket("ws://192.168.4.55:8000/ws/");
 
         this.socket.onmessage = (message) => {
+
+            console.log(message);
+
             var data = JSON.parse(message['data']);
             if (data['type'] == "@front") {
                 var image = data["output"];

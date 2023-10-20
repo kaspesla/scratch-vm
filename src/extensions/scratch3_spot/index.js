@@ -77,10 +77,10 @@ class Scratch3SpotBlocks {
          */
         this.runtime = runtime;
 
-        // this.videoFeed = new SpotVideoFeed.SpotVideoFeed();
+        this.videoFeed = new SpotVideoFeed.SpotVideoFeed();
 
-        // this.runtime.ioDevices.video.setProvider(this.videoFeed);
-        // this.runtime.ioDevices.video.enableVideo();
+        this.runtime.ioDevices.video.setProvider(this.videoFeed);
+        this.runtime.ioDevices.video.enableVideo();
 
         /**
          * A toggle that alternates true and false each frame, so that an
@@ -420,6 +420,42 @@ class Scratch3SpotBlocks {
                         }
                        
                     },
+                    {
+                        opcode: 'bow',
+                        text: formatMessage({
+                            id: 'bow',
+                            default: 'bow',
+                            description: 'Tell Spot to bow'
+                        }),
+                        blockType: BlockType.COMMAND,
+                    },
+                    {
+                        opcode: 'twerk',
+                        text: formatMessage({
+                            id: 'twerk',
+                            default: 'twerk',
+                            description: 'Tell Spot to twerk'
+                        }),
+                        blockType: BlockType.COMMAND,
+                    },
+                    {
+                        opcode: 'butt_circle',
+                        text: formatMessage({
+                            id: 'butt_circle',
+                            default: 'butt_circle',
+                            description: 'Tell Spot to do a butt_circle'
+                        }),
+                        blockType: BlockType.COMMAND,
+                    },
+                    {
+                        opcode: 'breathe',
+                        text: formatMessage({
+                            id: 'breathe',
+                            default: 'breathe',
+                            description: 'Tell Spot to do a breathe'
+                        }),
+                        blockType: BlockType.COMMAND,
+                    }
             ],
             menus: {
                 locomotionHints: {
@@ -567,6 +603,26 @@ class Scratch3SpotBlocks {
 
     rotateBodyTo(args) {
         return this._makeRequest("rotate", args=args, waitTime=rotateTimeoutMS);
+    }
+
+    bow(args)
+    {
+        return this._makeRequest("bow", args={}, waitTime=5000);
+    }
+
+    twerk(args)
+    {
+        return this._makeRequest("twerk", args={}, waitTime=500);
+    }
+
+    butt_circle(args)
+    {
+        return this._makeRequest("butt_circle", args={}, waitTime=500);
+    }
+
+    breathe(args)
+    {
+        return this._makeRequest("breathe", args={}, waitTime=500);
     }
     
     _makeRequest(commandName, args = {}, waitTime = moveTimeoutMS)
