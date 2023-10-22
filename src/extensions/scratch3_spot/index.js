@@ -2,15 +2,9 @@ const Runtime = require('../../engine/runtime');
 
 const blockIconURI = require('./icon').blockIconURI;
 
-const Clone = require('../../util/clone');
-const Video = require('../../io/video');
-
 const formatMessage = require('format-message');
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
-const Cast = require('../../util/cast');
-const fetchWithTimeout = require('../../util/fetch-with-timeout');
-const log = require('../../util/log');
 const SpotVideoFeed = require('./SpotVideoFeed');
 const constants = require('./constants')
 
