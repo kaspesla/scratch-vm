@@ -1,5 +1,4 @@
-
-const test = {"TEST": "TEST"};
+const SERVER_IP = require('./constants')
 
 export class SpotVideoFeed {
     constructor(runtime) {
@@ -14,11 +13,11 @@ export class SpotVideoFeed {
 
     enableVideo() {
         this.videoIsRunning = true;
-        this.socket = new WebSocket("ws://192.168.4.55:8000/ws/");
+        this.socket = new WebSocket(`ws://${constants.server_ip}:${constants.server_port}/ws/`);
 
         this.socket.onmessage = (message) => {
 
-            console.log(message);
+            // console.log(message);
 
             var data = JSON.parse(message['data']);
             if (data['type'] == "@front") {

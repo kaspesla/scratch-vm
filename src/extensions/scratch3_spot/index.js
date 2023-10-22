@@ -12,16 +12,15 @@ const Cast = require('../../util/cast');
 const fetchWithTimeout = require('../../util/fetch-with-timeout');
 const log = require('../../util/log');
 const SpotVideoFeed = require('./SpotVideoFeed');
-
+const constants = require('./constants')
 
 const moveTimeoutMS = 1000;
 const rotateTimeoutMS = 50;
 const sitStandTimeoutMS = 500;
-const url = "http://192.168.4.55:8000/command";
 
 let name = window.prompt("Enter Your Name: ")
 
-const ws = new WebSocket("ws://192.168.4.55:8000/scratch-ws/");
+const ws = new WebSocket(`ws://${constants.server_ip}:${constants.server_port}/scratch-ws/`);
 
 document.querySelector("#spot-name").style = "display: block !important";
 
