@@ -6,7 +6,7 @@ const formatMessage = require('format-message');
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const SpotVideoFeed = require('./SpotVideoFeed');
-const constants = require('./constants')
+const constants = require('./constants').constants
 
 const moveTimeoutMS = 1000;
 const rotateTimeoutMS = 50;

@@ -1,4 +1,4 @@
-const constants = require('./constants')
+const constants = require('./constants').constants
 
 export class SpotVideoFeed {
     constructor(runtime) {
