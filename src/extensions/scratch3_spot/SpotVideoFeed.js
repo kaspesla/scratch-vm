@@ -1,4 +1,4 @@
-const SERVER_IP = require('./constants')
+const constants = require('./constants')
 
 export class SpotVideoFeed {
     constructor(runtime) {
